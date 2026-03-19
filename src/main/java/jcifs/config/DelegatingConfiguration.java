@@ -914,4 +914,9 @@ public class DelegatingConfiguration implements Configuration {
     public boolean isAllowGuestFallback () {
         return this.delegate.isAllowGuestFallback();
     }
+
+    @Override
+    public String getSocketFactoryClassName() {
+        return this.delegate.getSocketFactoryClassName();
+    }
 }

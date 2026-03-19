@@ -140,7 +140,7 @@ public class BaseConfiguration implements Configuration {
     protected String guestUsername = "GUEST";
     protected String guestPassword = "";
     protected boolean allowGuestFallback = false;
-
+    protected String socketFactoryClassName;
 
     /**
      * @throws CIFSException
@@ -618,6 +618,11 @@ public class BaseConfiguration implements Configuration {
     @Override
     public boolean isAllowGuestFallback () {
         return this.allowGuestFallback;
+    }
+
+    @Override
+    public String getSocketFactoryClassName() {
+        return this.socketFactoryClassName;
     }
 
 
