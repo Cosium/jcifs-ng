@@ -771,6 +771,7 @@ class SmbTreeImpl implements SmbTreeInternal {
                 transport.wait();
             }
             catch ( InterruptedException ie ) {
+                Thread.currentThread().interrupt();
                 throw new SmbException(ie.getMessage(), ie);
             }
         }
