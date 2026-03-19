@@ -144,7 +144,6 @@ public final class PropertyConfiguration extends BaseConfiguration implements Co
         this.allowGuestFallback = Config.getBoolean(p, "jcifs.smb.client.allowGuestFallback", false);
         this.guestUsername = p.getProperty("jcifs.smb.client.guestUsername", "JCIFSGUEST");
         this.guestPassword = p.getProperty("jcifs.smb.client.guestPassword", "");
-        this.socketFactoryClassName = p.getProperty("jcifs.smb.client.socketFactoryClassName");
 
         String minVer = p.getProperty("jcifs.smb.client.minVersion");
         String maxVer = p.getProperty("jcifs.smb.client.maxVersion");

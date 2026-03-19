@@ -787,9 +787,4 @@ public interface Configuration {
      * @return whether to permit guest logins when user authentication is requested
      */
     boolean isAllowGuestFallback ();
-
-    /**
-     * @return the {@link javax.net.SocketFactory} implementation class name or null
-     */
-    String getSocketFactoryClassName();
 }

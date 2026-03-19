@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -37,17 +36,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.crypto.Cipher;
-import javax.net.SocketFactory;
 
-import jcifs.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,8 +106,6 @@ import jcifs.util.transport.TransportException;
 class SmbTransportImpl extends Transport implements SmbTransportInternal, SmbConstants {
 
     private static Logger log = LoggerFactory.getLogger(SmbTransportImpl.class);
-
-    private static final Map<String, SocketFactory> SOCKET_FACTORY_BY_CLASS_NAME = new ConcurrentHashMap<>();
 
     private boolean smb2 = false;
     private InetAddress localAddr;
@@ -428,7 +421,7 @@ class SmbTransportImpl extends Transport implements SmbTransportInternal, SmbCon
         CIFSContext tc = this.transportContext;
         Name calledName = new Name(tc.getConfig(), this.address.firstCalledName(), 0x20, null);
         do {
-            this.socket = getSocketFactory(tc.getConfig()).createSocket();
+            this.socket = new Socket();
             if ( this.localAddr != null )
                 this.socket.bind(new InetSocketAddress(this.localAddr, this.localPort));
             this.socket.connect(new InetSocketAddress(this.address.getHostAddress(), 139), tc.getConfig().getConnTimeout());
@@ -479,6 +472,7 @@ class SmbTransportImpl extends Transport implements SmbTransportInternal, SmbCon
         throw new IOException("Failed to establish session with " + this.address);
     }
 
+
     private SmbNegotiation negotiate ( int prt ) throws IOException {
         /*
          * We cannot use Transport.sendrecv() yet because
@@ -494,7 +488,7 @@ class SmbTransportImpl extends Transport implements SmbTransportInternal, SmbCon
                 if ( prt == 0 )
                     prt = DEFAULT_PORT; // 445
 
-                this.socket = getSocketFactory(this.transportContext.getConfig()).createSocket();
+                this.socket = new Socket();
                 if ( this.localAddr != null )
                     this.socket.bind(new InetSocketAddress(this.localAddr, this.localPort));
                 this.socket.connect(new InetSocketAddress(this.address.getHostAddress(), prt), this.transportContext.getConfig().getConnTimeout());
@@ -567,26 +561,6 @@ class SmbTransportImpl extends Transport implements SmbTransportInternal, SmbCon
         }
     }
 
-    private static SocketFactory getSocketFactory(Configuration configuration) {
-        String socketFactoryClassName = configuration.getSocketFactoryClassName();
-        if (socketFactoryClassName == null) {
-            return SocketFactory.getDefault();
-        }
-
-        if (!SOCKET_FACTORY_BY_CLASS_NAME.containsKey(socketFactoryClassName)) {
-            try {
-                SOCKET_FACTORY_BY_CLASS_NAME.put(socketFactoryClassName,
-                    (SocketFactory) Class.forName(socketFactoryClassName)
-                        .getConstructor()
-                        .newInstance());
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                     NoSuchMethodException | ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return SOCKET_FACTORY_BY_CLASS_NAME.get(socketFactoryClassName);
-    }
 
     /**
      * @return
